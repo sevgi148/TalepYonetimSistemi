@@ -99,3 +99,4 @@ public class KimlikController : ControllerBase
         return new JwtSecurityTokenHandler().WriteToken(token);
     }
 }
+

@@ -113,3 +113,4 @@ C:\Users\sevgi\OneDrive\Masaüstü\TalepYonetimSistemi\Backend\RequestManagement
 C:\Users\sevgi\OneDrive\Masaüstü\TalepYonetimSistemi\Backend\RequestManagement.API\obj\Debug\net8.0\RequestManagement.API.pdb
 C:\Users\sevgi\OneDrive\Masaüstü\TalepYonetimSistemi\Backend\RequestManagement.API\obj\Debug\net8.0\RequestManagement.API.genruntimeconfig.cache
 C:\Users\sevgi\OneDrive\Masaüstü\TalepYonetimSistemi\Backend\RequestManagement.API\obj\Debug\net8.0\ref\RequestManagement.API.dll
+C:\Users\sevgi\OneDrive\Masaüstü\TalepYonetimSistemi\Backend\RequestManagement.API\obj\Debug\net8.0\RequestManagement.API.sourcelink.json
