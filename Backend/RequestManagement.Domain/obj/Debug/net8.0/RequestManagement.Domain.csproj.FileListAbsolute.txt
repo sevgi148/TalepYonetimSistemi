@@ -1,0 +1,12 @@
+C:\Users\sevgi\OneDrive\Masaüstü\TalepYonetimSistemi\Backend\RequestManagement.Domain\bin\Debug\net8.0\RequestManagement.Domain.deps.json
+C:\Users\sevgi\OneDrive\Masaüstü\TalepYonetimSistemi\Backend\RequestManagement.Domain\bin\Debug\net8.0\RequestManagement.Domain.dll
+C:\Users\sevgi\OneDrive\Masaüstü\TalepYonetimSistemi\Backend\RequestManagement.Domain\bin\Debug\net8.0\RequestManagement.Domain.pdb
+C:\Users\sevgi\OneDrive\Masaüstü\TalepYonetimSistemi\Backend\RequestManagement.Domain\obj\Debug\net8.0\RequestManagement.Domain.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\sevgi\OneDrive\Masaüstü\TalepYonetimSistemi\Backend\RequestManagement.Domain\obj\Debug\net8.0\RequestManagement.Domain.AssemblyInfoInputs.cache
+C:\Users\sevgi\OneDrive\Masaüstü\TalepYonetimSistemi\Backend\RequestManagement.Domain\obj\Debug\net8.0\RequestManagement.Domain.AssemblyInfo.cs
+C:\Users\sevgi\OneDrive\Masaüstü\TalepYonetimSistemi\Backend\RequestManagement.Domain\obj\Debug\net8.0\RequestManagement.Domain.csproj.CoreCompileInputs.cache
+C:\Users\sevgi\OneDrive\Masaüstü\TalepYonetimSistemi\Backend\RequestManagement.Domain\obj\Debug\net8.0\RequestManagement.Domain.sourcelink.json
+C:\Users\sevgi\OneDrive\Masaüstü\TalepYonetimSistemi\Backend\RequestManagement.Domain\obj\Debug\net8.0\RequestManagement.Domain.dll
+C:\Users\sevgi\OneDrive\Masaüstü\TalepYonetimSistemi\Backend\RequestManagement.Domain\obj\Debug\net8.0\refint\RequestManagement.Domain.dll
+C:\Users\sevgi\OneDrive\Masaüstü\TalepYonetimSistemi\Backend\RequestManagement.Domain\obj\Debug\net8.0\RequestManagement.Domain.pdb
+C:\Users\sevgi\OneDrive\Masaüstü\TalepYonetimSistemi\Backend\RequestManagement.Domain\obj\Debug\net8.0\ref\RequestManagement.Domain.dll

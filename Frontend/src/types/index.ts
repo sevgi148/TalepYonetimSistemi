@@ -1,67 +1,73 @@
-export const TalepTuru = {
-  Donanim: 0,
-  Yazilim: 1,
-  AgArayuzu: 2,
-  Diger: 3,
-} as const;
-export type TalepTuru = typeof TalepTuru[keyof typeof TalepTuru];
-
-export const Oncelik = {
-  Dusuk: 0,
-  Orta: 1,
-  Yuksek: 2,
-  Acil: 3,
-} as const;
-export type Oncelik = typeof Oncelik[keyof typeof Oncelik];
-
 export const TalepDurumu = {
-  Yeni: 0,
-  Atandi: 1,
-  Islemde: 2,
-  Tamamlandi: 3,
-  Iptal: 4,
+  Yeni: 1,
+  Atandi:2,
+  Islemde: 3,
+  Tamamlandi: 4,
+  Iptal: 5,
 } as const;
-export type TalepDurumu = typeof TalepDurumu[keyof typeof TalepDurumu];
 
-export interface Kullanici {
-  id: number;
-  ad: string;
-  soyad: string;
-  eposta: string;
-  rol: string;
-}
+export type TalepDurumu = (typeof TalepDurumu)[keyof typeof TalepDurumu];
+
+export const TalepOncelik = {
+  Dusuk: 1,
+  Orta: 2,
+  Yuksek: 3,
+  Acil: 4,
+} as const;
+
+export type TalepOncelik = (typeof TalepOncelik)[keyof typeof TalepOncelik];
 
 export interface KimlikYanitDto {
-  token: string;
+  id: string;
   eposta: string;
-  kullaniciAdi: string;
   rol: string;
+  token: string;
+}
+
+export interface KullaniciKayitDto {
+  eposta: string;
+  sifre: string;
+}
+
+export interface KullaniciGirisDto {
+  eposta: string;
+  sifre: string;
 }
 
 export interface Talep {
-  id: number;
+  id: string;
   baslik: string;
   aciklama: string;
-  talepTuru: TalepTuru;
-  oncelik: Oncelik;
+  oncelik: TalepOncelik;
   durum: TalepDurumu;
-  olusturmaTarihi: string;
-  olusturanKullaniciId: number;
-  atananKullaniciId?: number;
+  olusturanKullaniciId: string;
+  olusturulmaTarihi: string;
+  olusturanKullanici?: { eposta: string };
+  atananKullanici?: { eposta: string };
 }
 
 export interface TalepOlusturDto {
   baslik: string;
   aciklama: string;
-  talepTuru: TalepTuru;
-  oncelik: Oncelik;
-  olusturanKullaniciId: number;
+  oncelik: TalepOncelik;
+  talepTuru: string;
+}
+
+export interface TalepDurumGuncelleDto {
+  talepId: string;
+  yeniDurum: TalepDurumu;
+  aciklama?: string;
+}
+
+export interface YorumEkleDto {
+  talepId: string;
+  yorum: string;
 }
 
 export interface DashboardOzetDto {
-  toplamTalepSayisi: number;
-  yeniTalepSayisi: number;
-  islemdekiTalepSayisi: number;
-  tamamlananTalepSayisi: number;
-  iptalTalepSayisi: number;
+  toplam: number;
+  yeni: number;
+  islemdeki: number;
+  tamamlanan: number;
+  iptal: number;
 }

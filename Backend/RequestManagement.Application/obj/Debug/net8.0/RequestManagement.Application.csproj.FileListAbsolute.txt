@@ -1,0 +1,16 @@
+C:\Users\sevgi\OneDrive\Masaüstü\TalepYonetimSistemi\Backend\RequestManagement.Application\bin\Debug\net8.0\RequestManagement.Application.deps.json
+C:\Users\sevgi\OneDrive\Masaüstü\TalepYonetimSistemi\Backend\RequestManagement.Application\bin\Debug\net8.0\RequestManagement.Application.dll
+C:\Users\sevgi\OneDrive\Masaüstü\TalepYonetimSistemi\Backend\RequestManagement.Application\bin\Debug\net8.0\RequestManagement.Application.pdb
+C:\Users\sevgi\OneDrive\Masaüstü\TalepYonetimSistemi\Backend\RequestManagement.Application\bin\Debug\net8.0\RequestManagement.Domain.dll
+C:\Users\sevgi\OneDrive\Masaüstü\TalepYonetimSistemi\Backend\RequestManagement.Application\bin\Debug\net8.0\RequestManagement.Domain.pdb
+C:\Users\sevgi\OneDrive\Masaüstü\TalepYonetimSistemi\Backend\RequestManagement.Application\obj\Debug\net8.0\RequestManagement.Application.csproj.AssemblyReference.cache
+C:\Users\sevgi\OneDrive\Masaüstü\TalepYonetimSistemi\Backend\RequestManagement.Application\obj\Debug\net8.0\RequestManagement.Application.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\sevgi\OneDrive\Masaüstü\TalepYonetimSistemi\Backend\RequestManagement.Application\obj\Debug\net8.0\RequestManagement.Application.AssemblyInfoInputs.cache
+C:\Users\sevgi\OneDrive\Masaüstü\TalepYonetimSistemi\Backend\RequestManagement.Application\obj\Debug\net8.0\RequestManagement.Application.AssemblyInfo.cs
+C:\Users\sevgi\OneDrive\Masaüstü\TalepYonetimSistemi\Backend\RequestManagement.Application\obj\Debug\net8.0\RequestManagement.Application.csproj.CoreCompileInputs.cache
+C:\Users\sevgi\OneDrive\Masaüstü\TalepYonetimSistemi\Backend\RequestManagement.Application\obj\Debug\net8.0\RequestManagement.Application.sourcelink.json
+C:\Users\sevgi\OneDrive\Masaüstü\TalepYonetimSistemi\Backend\RequestManagement.Application\obj\Debug\net8.0\RequestM.3C45E728.Up2Date
+C:\Users\sevgi\OneDrive\Masaüstü\TalepYonetimSistemi\Backend\RequestManagement.Application\obj\Debug\net8.0\RequestManagement.Application.dll
+C:\Users\sevgi\OneDrive\Masaüstü\TalepYonetimSistemi\Backend\RequestManagement.Application\obj\Debug\net8.0\refint\RequestManagement.Application.dll
+C:\Users\sevgi\OneDrive\Masaüstü\TalepYonetimSistemi\Backend\RequestManagement.Application\obj\Debug\net8.0\RequestManagement.Application.pdb
+C:\Users\sevgi\OneDrive\Masaüstü\TalepYonetimSistemi\Backend\RequestManagement.Application\obj\Debug\net8.0\ref\RequestManagement.Application.dll

@@ -1,162 +1,94 @@
 using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using RequestManagement.API.Data;
-using RequestManagement.API.DTOs;
-using RequestManagement.API.Models;
+using RequestManagement.Application.DTOs;
+using RequestManagement.Application.Interfaces;
 
 namespace RequestManagement.API.Controllers;
 
-[Authorize]
 [ApiController]
 [Route("api/[controller]")]
-public class TaleplerController : ControllerBase
+[Authorize]
+public class TaleplerController(ITalepService talepService) : ControllerBase
 {
-    private readonly AppDbContext _context;
-
-    public TaleplerController(AppDbContext context)
-    {
-        _context = context;
-    }
-
-    private int GetAktifKullaniciId()
-    {
-        var claim = User.FindFirst(ClaimTypes.NameIdentifier);
-        return claim != null ? int.Parse(claim.Value) : 0;
-    }
-
-    [HttpGet("ozet")]
-    public async Task<IActionResult> OzetGetir()
-    {
-        var kullaniciId = GetAktifKullaniciId();
-
-        var toplam = await _context.Talepler.CountAsync(t => t.OlusturanKullaniciId == kullaniciId);
-        var yeni = await _context.Talepler.CountAsync(t => t.OlusturanKullaniciId == kullaniciId && t.Durum == TalepDurumu.Yeni);
-        var islemde = await _context.Talepler.CountAsync(t => t.OlusturanKullaniciId == kullaniciId && t.Durum == TalepDurumu.Islemde);
-        var tamamlanan = await _context.Talepler.CountAsync(t => t.OlusturanKullaniciId == kullaniciId && t.Durum == TalepDurumu.Tamamlandi);
-        var iptal = await _context.Talepler.CountAsync(t => t.OlusturanKullaniciId == kullaniciId && t.Durum == TalepDurumu.Iptal);
-
-        return Ok(new
-        {
-            toplam,
-            yeni,
-            islemde,
-            tamamlanan,
-            iptal
-        });
-    }
-
     [HttpGet]
     public async Task<IActionResult> TalepleriGetir()
     {
-        var kullaniciId = GetAktifKullaniciId();
+        var kullaniciIdStr = User.FindFirst(ClaimTypes.NameIdentifier)?.Value 
+                             ?? User.FindFirst("sub")?.Value;
 
-        var talepler = await _context.Talepler
-            .Where(t => t.OlusturanKullaniciId == kullaniciId || t.AtananKullaniciId == kullaniciId)
-            .Include(t => t.OlusturanKullanici)
-            .Include(t => t.AtananKullanici)
-            .Include(t => t.Yorumlar)
-            .Include(t => t.Gecmis)
-            .OrderByDescending(t => t.OlusturulmaTarihi)
-            .ToListAsync();
+        if (!Guid.TryParse(kullaniciIdStr, out var kullaniciGuid))
+        {
+            return Unauthorized("Kullanıcı oturum bilgisi doğrulanamadı.");
+        }
 
+        var talepler = await talepService.KullaniciTalepleriniGetirAsync(kullaniciGuid);
         return Ok(talepler);
     }
 
-    [HttpPost]
-    public async Task<IActionResult> TalepOlustur(TalepOlusturDto dto)
+    [HttpGet("tum-talepler")]
+    public async Task<IActionResult> TumTalepleriGetir()
     {
-        var olusturanId = GetAktifKullaniciId();
-
-        var yeniTalep = new Talep
-        {
-            Baslik = dto.Baslik,
-            Aciklama = dto.Aciklama,
-            TalepTuru = dto.TalepTuru,
-            Oncelik = dto.Oncelik,
-            Durum = TalepDurumu.Yeni,
-            OlusturanKullaniciId = olusturanId,
-            OlusturulmaTarihi = DateTime.UtcNow
-        };
-
-        _context.Talepler.Add(yeniTalep);
-        await _context.SaveChangesAsync();
-
-        var gecmis = new TalepGecmisi
-        {
-            TalepId = yeniTalep.Id,
-            IslemYapanKullaniciId = olusturanId,
-            EskiDurum = "-",
-            YeniDurum = TalepDurumu.Yeni.ToString(),
-            Aciklama = "Talep oluşturuldu."
-        };
-        _context.TalepGecmisleri.Add(gecmis);
-        await _context.SaveChangesAsync();
-
-        return Ok(yeniTalep);
+        var talepler = await talepService.TumTalepleriGetirAsync();
+        return Ok(talepler);
     }
 
-    [HttpPut("{id}/durum")]
-    public async Task<IActionResult> DurumGuncelle(int id, TalepDurumGuncelleDto dto)
+    [HttpGet("{id:guid}")]
+    public async Task<IActionResult> TalepGetirById(Guid id)
     {
-        var islemYapanId = GetAktifKullaniciId();
-        var talep = await _context.Talepler.FindAsync(id);
-        if (talep == null) return NotFound("Talep bulunamadı.");
-
-        string eskiDurum = talep.Durum.ToString();
-        talep.Durum = dto.Durum;
-        talep.GuncellenmeTarihi = DateTime.UtcNow;
-
-        if (dto.AtananKullaniciId.HasValue)
+        var talep = await talepService.TalepGetirByIdAsync(id);
+        if (talep == null)
         {
-            talep.AtananKullaniciId = dto.AtananKullaniciId.Value;
+            return NotFound("Talep bulunamadı.");
         }
 
-        var gecmis = new TalepGecmisi
-        {
-            TalepId = talep.Id,
-            IslemYapanKullaniciId = islemYapanId,
-            EskiDurum = eskiDurum,
-            YeniDurum = dto.Durum.ToString(),
-            Aciklama = dto.Aciklama ?? $"Durum {dto.Durum} olarak güncellendi."
-        };
-
-        _context.TalepGecmisleri.Add(gecmis);
-        await _context.SaveChangesAsync();
-
-        return Ok(new { Mesaj = "Talep durumu güncellendi.", Talep = talep });
+        return Ok(talep);
     }
 
-    [HttpPost("{id}/yorum")]
-    public async Task<IActionResult> YorumEkle(int id, YorumEkleDto dto)
+    [HttpPost]
+    public async Task<IActionResult> TalepOlustur([FromBody] TalepOlusturDto dto)
     {
-        var kullaniciId = GetAktifKullaniciId();
-        var talep = await _context.Talepler.FindAsync(id);
-        if (talep == null) return NotFound("Talep bulunamadı.");
+        var kullaniciIdStr = User.FindFirst(ClaimTypes.NameIdentifier)?.Value 
+                             ?? User.FindFirst("sub")?.Value;
 
-        var yorum = new TalepYorum
+        if (Guid.TryParse(kullaniciIdStr, out var kullaniciGuid))
         {
-            TalepId = id,
-            KullaniciId = kullaniciId,
-            Yorum = dto.Yorum,
-            OlusturmaTarihi = DateTime.UtcNow
-        };
+            dto = dto with { OlusturanKullaniciId = kullaniciGuid };
+        }
 
-        _context.TalepYorumlari.Add(yorum);
-        await _context.SaveChangesAsync();
-
-        return Ok(new { Mesaj = "Yorum eklendi.", Yorum = yorum });
+        var talep = await talepService.TalepOlusturAsync(dto);
+        return CreatedAtAction(nameof(TalepGetirById), new { id = talep.Id }, talep);
     }
 
-    [HttpGet("{id}/gecmis")]
-    public async Task<IActionResult> TalepGecmisiniGetir(int id)
+    [HttpPut("durum")]
+    public async Task<IActionResult> DurumGuncelle([FromBody] TalepDurumGuncelleDto dto)
     {
-        var gecmis = await _context.TalepGecmisleri
-            .Where(g => g.TalepId == id)
-            .OrderByDescending(g => g.IslemTarihi)
-            .ToListAsync();
+        var basarili = await talepService.DurumGuncelleAsync(dto);
+        if (!basarili)
+        {
+            return NotFound("Güncellenmek istenen talep bulunamadı.");
+        }
 
-        return Ok(gecmis);
+        return Ok(new { mesaj = "Talep durumu başarıyla güncellendi." });
+    }
+
+    [HttpPost("yorum")]
+    public async Task<IActionResult> YorumEkle([FromBody] YorumEkleDto dto)
+    {
+        var kullaniciIdStr = User.FindFirst(ClaimTypes.NameIdentifier)?.Value 
+                             ?? User.FindFirst("sub")?.Value;
+
+        if (Guid.TryParse(kullaniciIdStr, out var kullaniciGuid))
+        {
+            dto = dto with { KullaniciId = kullaniciGuid };
+        }
+
+        var basarili = await talepService.YorumEkleAsync(dto);
+        if (!basarili)
+        {
+            return NotFound("Yorum eklenmek istenen talep bulunamadı.");
+        }
+
+        return Ok(new { mesaj = "Yorum başarıyla eklendi." });
     }
 }

@@ -1,7 +1,7 @@
 import axios from 'axios';
 
-const axiosClient = axios.create({
-  baseURL: import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000/api',
+export const axiosClient = axios.create({
+  baseURL: import.meta.env.VITE_API_BASE_URL || 'https://localhost:5020/api',
   headers: {
     'Content-Type': 'application/json',
   },
@@ -9,10 +9,19 @@ const axiosClient = axios.create({
 
 axiosClient.interceptors.request.use((config) => {
   const token = localStorage.getItem('token');
-  if (token) {
+  if (token && config.headers) {
     config.headers.Authorization = `Bearer ${token}`;
   }
   return config;
 });
 
-export default axiosClient;
+axiosClient.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    if (error.response?.status === 401) {
+      localStorage.removeItem('token');
+      localStorage.removeItem('user');
+    }
+    return Promise.reject(error);
+  }
+);

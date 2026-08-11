@@ -1,23 +1,18 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import axiosClient from '../api/axiosClient';
-
-interface TalepOzeti {
-  toplam: number;
-  yeni: number;
-  islemde: number;
-  tamamlanan: number;
-  iptal: number;
-}
+import { dashboardApi } from '../api/dashboardApi';
+import { useAuth } from '../hooks/useAuth';
+import type { DashboardOzetDto } from '../types';
 
 export const Dashboard: React.FC = () => {
   const navigate = useNavigate();
-  const kullaniciAdi = localStorage.getItem('kullaniciAdi') || 'Kullanıcı';
+  const { user, logout } = useAuth();
+  const kullaniciGosterim = user?.eposta || 'Kullanıcı';
 
-  const [ozet, setOzet] = useState<TalepOzeti>({
+  const [ozet, setOzet] = useState<DashboardOzetDto>({
     toplam: 0,
     yeni: 0,
-    islemde: 0,
+    islemdeki: 0,
     tamamlanan: 0,
     iptal: 0,
   });
@@ -25,8 +20,15 @@ export const Dashboard: React.FC = () => {
 
   const ozetGetir = async () => {
     try {
-      const res = await axiosClient.get<TalepOzeti>('/Talepler/ozet');
-      setOzet(res.data);
+      const data = await dashboardApi.ozetGetir() as unknown as Record<string, number>;
+      
+      setOzet({
+        toplam: data.toplam ?? data.toplamTalepSayisi ?? 0,
+        yeni: data.yeni ?? data.yeniTalepSayisi ?? 0,
+        islemdeki: data.islemdeki ?? data.islemdekiTalepSayisi ?? 0,
+        tamamlanan: data.tamamlanan ?? data.tamamlananTalepSayisi ?? 0,
+        iptal: data.iptal ?? data.iptalTalepSayisi ?? 0,
+      });
     } catch (err) {
       console.error('Özet verisi çekilemedi:', err);
     } finally {
@@ -39,8 +41,7 @@ export const Dashboard: React.FC = () => {
   }, []);
 
   const handleCikis = () => {
-    localStorage.removeItem('token');
-    localStorage.removeItem('kullaniciAdi');
+    logout();
     navigate('/login');
   };
 
@@ -49,7 +50,7 @@ export const Dashboard: React.FC = () => {
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '3rem' }}>
         <h1 style={{ margin: 0, fontSize: '2rem', fontWeight: 'bold' }}>Talep Yönetim Sistemi</h1>
         <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-          <span style={{ color: '#94a3b8', fontSize: '1rem' }}>👤 {kullaniciAdi}</span>
+          <span style={{ color: '#94a3b8', fontSize: '1rem' }}>👤 {kullaniciGosterim}</span>
           <button
             onClick={() => navigate('/talepler')}
             style={{ backgroundColor: '#2563eb', color: '#fff', border: 'none', padding: '0.6rem 1.2rem', borderRadius: '8px', cursor: 'pointer', fontWeight: 'bold' }}
@@ -82,7 +83,7 @@ export const Dashboard: React.FC = () => {
 
             <div style={{ backgroundColor: '#ffffff', color: '#1e293b', padding: '1.5rem', borderRadius: '12px', borderLeft: '6px solid #0284c7', textAlign: 'center' }}>
               <h3 style={{ margin: 0, color: '#64748b', fontSize: '1.1rem' }}>İşlemdeki Talepler</h3>
-              <p style={{ fontSize: '2.5rem', fontWeight: 'bold', margin: '0.5rem 0 0', color: '#0284c7' }}>{ozet.islemde}</p>
+              <p style={{ fontSize: '2.5rem', fontWeight: 'bold', margin: '0.5rem 0 0', color: '#0284c7' }}>{ozet.islemdeki}</p>
             </div>
 
             <div style={{ backgroundColor: '#ffffff', color: '#1e293b', padding: '1.5rem', borderRadius: '12px', borderLeft: '6px solid #16a34a', textAlign: 'center' }}>
