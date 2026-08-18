@@ -6,37 +6,37 @@ namespace RequestManagement.Infrastructure.Data;
 
 public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(options), IAppDbContext
 {
-    public DbSet<Kullanici> Kullanicilar => Set<Kullanici>();
-    public DbSet<Talep> Talepler => Set<Talep>();
-    public DbSet<TalepYorum> Yorumlar => Set<TalepYorum>();
-    public DbSet<TalepGecmisi> TalepGecmisleri => Set<TalepGecmisi>();
+    public DbSet<User> Users => Set<User>();
+    public DbSet<Request> Requests => Set<Request>();
+    public DbSet<RequestComment> Comments => Set<RequestComment>();
+    public DbSet<RequestHistory> RequestHistories => Set<RequestHistory>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
 
-        modelBuilder.Entity<Talep>()
-            .HasOne(t => t.OlusturanKullanici)
-            .WithMany(k => k.OlusturulanTalepler)
-            .HasForeignKey(t => t.OlusturanKullaniciId)
+        modelBuilder.Entity<Request>()
+            .HasOne(r => r.CreatedByUser)
+            .WithMany(u => u.CreatedRequests)
+            .HasForeignKey(r => r.CreatedByUserId)
             .OnDelete(DeleteBehavior.Restrict);
 
-        modelBuilder.Entity<Talep>()
-            .HasOne(t => t.AtananKullanici)
-            .WithMany(k => k.AtananTalepler)
-            .HasForeignKey(t => t.AtananKullaniciId)
+        modelBuilder.Entity<Request>()
+            .HasOne(r => r.AssignedToUser)
+            .WithMany(u => u.AssignedRequests)
+            .HasForeignKey(r => r.AssignedToUserId)
             .OnDelete(DeleteBehavior.Restrict);
 
-        modelBuilder.Entity<TalepYorum>()
-            .HasOne(y => y.Kullanici)
-            .WithMany()
-            .HasForeignKey(y => y.KullaniciId)
+        modelBuilder.Entity<RequestComment>()
+            .HasOne(c => c.User)
+            .WithMany(u => u.Comments)
+            .HasForeignKey(c => c.UserId)
             .OnDelete(DeleteBehavior.Restrict);
 
-        modelBuilder.Entity<TalepGecmisi>()
-            .HasOne(g => g.Kullanici)
-            .WithMany()
-            .HasForeignKey(g => g.KullaniciId)
+        modelBuilder.Entity<RequestHistory>()
+            .HasOne(h => h.User)
+            .WithMany(u => u.RequestHistories)
+            .HasForeignKey(h => h.UserId)
             .OnDelete(DeleteBehavior.Restrict);
     }
 }

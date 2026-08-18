@@ -7,34 +7,56 @@ import { useAuth } from '../hooks/useAuth';
 export const Login: React.FC = () => {
   const navigate = useNavigate();
   const { login } = useAuth();
-  const [eposta, setEposta] = useState('');
-  const [sifre, setSifre] = useState('');
-  const [hata, setHata] = useState('');
+  
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [error, setError] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const handleGiris = async (e: React.FormEvent) => {
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    setHata('');
+    
+    if (!email.trim() || !password.trim()) {
+      setError('Lütfen e-posta adresinizi ve şifrenizi girin.');
+      return;
+    }
+
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email.trim())) {
+      setError("Lütfen geçerli bir e-posta adresi girin ('@' işareti içermelidir).");
+      return;
+    }
+
+    setError('');
+    setIsSubmitting(true);
 
     try {
-      const yanit = await authApi.girisYap({ eposta, sifre });
-      login(yanit);
+      const response = await authApi.login({ email: email.trim(), password });
+      login(response);
       navigate('/dashboard');
     } catch (err) {
       if (axios.isAxiosError(err)) {
         console.error('Giriş hatası detayları:', err.response);
 
         if (err.response && err.response.data) {
-          const backendMesaji =
+          let backendMessage =
             typeof err.response.data === 'string'
               ? err.response.data
-              : (err.response.data as { message?: string }).message || 'Giriş işlemi başarısız.';
-          setHata(backendMesaji);
+              : (err.response.data as { message?: string }).message || 'Giriş yapılamadı.';
+          
+          if (backendMessage.toLowerCase().includes('invalid email or password')) {
+            backendMessage = 'E-posta adresi veya şifre hatalı.';
+          }
+
+          setError(backendMessage);
         } else {
-          setHata('Sunucuya ulaşılamıyor, lütfen backend servisinin çalıştığından emin olun.');
+          setError('Sunucuya bağlanılamadı. Lütfen backend servisinin çalıştığından emin olun.');
         }
       } else {
-        setHata('Beklenmeyen bir hata oluştu.');
+        setError('Beklenmeyen bir hata oluştu.');
       }
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -49,20 +71,22 @@ export const Login: React.FC = () => {
       }}
     >
       <form
-        onSubmit={handleGiris}
+        onSubmit={handleLogin}
+        noValidate
         style={{
           backgroundColor: '#1e293b',
           padding: '2.5rem',
           borderRadius: '12px',
           width: '380px',
           color: '#fff',
+          boxShadow: '0 10px 25px -5px rgba(0,0,0,0.5)',
         }}
       >
         <h2 style={{ textAlign: 'center', marginBottom: '1.5rem', color: '#38bdf8' }}>
           Giriş Yap
         </h2>
 
-        {hata && (
+        {error && (
           <div
             style={{
               backgroundColor: '#ef4444',
@@ -74,20 +98,22 @@ export const Login: React.FC = () => {
               fontSize: '0.9rem',
             }}
           >
-            {hata}
+            {error}
           </div>
         )}
 
         <div style={{ marginBottom: '1rem' }}>
           <label style={{ display: 'block', marginBottom: '0.5rem', color: '#94a3b8' }}>
-            E-Posta
+            E-posta
           </label>
           <input
             type="email"
-            value={eposta}
-            onChange={(e) => setEposta(e.target.value)}
-            required
-            placeholder="E-postanızı giriniz"
+            value={email}
+            onChange={(e) => {
+              setEmail(e.target.value);
+              if (error) setError('');
+            }}
+            placeholder="E-posta adresinizi girin"
             style={{
               width: '100%',
               padding: '0.75rem',
@@ -107,10 +133,12 @@ export const Login: React.FC = () => {
           </label>
           <input
             type="password"
-            value={sifre}
-            onChange={(e) => setSifre(e.target.value)}
-            required
-            placeholder="Şifreniz"
+            value={password}
+            onChange={(e) => {
+              setPassword(e.target.value);
+              if (error) setError('');
+            }}
+            placeholder="Şifrenizi girin"
             style={{
               width: '100%',
               padding: '0.75rem',
@@ -126,6 +154,7 @@ export const Login: React.FC = () => {
 
         <button
           type="submit"
+          disabled={isSubmitting}
           style={{
             width: '100%',
             padding: '0.8rem',
@@ -135,15 +164,16 @@ export const Login: React.FC = () => {
             borderRadius: '8px',
             fontWeight: 'bold',
             cursor: 'pointer',
+            opacity: isSubmitting ? 0.7 : 1,
           }}
         >
-          Giriş Yap
+          {isSubmitting ? 'Giriş yapılıyor.' : 'Giriş Yap'}
         </button>
 
         <p style={{ textAlign: 'center', marginTop: '1.5rem', color: '#94a3b8' }}>
           Hesabınız yok mu?{' '}
           <span
-            onClick={() => navigate('/kayit-ol')}
+            onClick={() => navigate('/register')}
             style={{ color: '#38bdf8', cursor: 'pointer', textDecoration: 'underline' }}
           >
             Kayıt Ol

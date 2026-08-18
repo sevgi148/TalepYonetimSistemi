@@ -22,199 +22,207 @@ namespace RequestManagement.Infrastructure.Migrations
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
-            modelBuilder.Entity("RequestManagement.Domain.Entities.Kullanici", b =>
+            modelBuilder.Entity("RequestManagement.Domain.Entities.Request", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
-                    b.Property<string>("Eposta")
+                    b.Property<Guid?>("AssignedToUserId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid>("CreatedByUserId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Description")
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<string>("Rol")
+                    b.Property<int>("Priority")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("Title")
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<string>("SifreHash")
-                        .IsRequired()
-                        .HasColumnType("text");
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone");
 
                     b.HasKey("Id");
 
-                    b.ToTable("Kullanicilar");
+                    b.HasIndex("AssignedToUserId");
+
+                    b.HasIndex("CreatedByUserId");
+
+                    b.ToTable("Requests");
                 });
 
-            modelBuilder.Entity("RequestManagement.Domain.Entities.Talep", b =>
+            modelBuilder.Entity("RequestManagement.Domain.Entities.RequestComment", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
-                    b.Property<string>("Aciklama")
+                    b.Property<string>("Content")
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<Guid?>("AtananKullaniciId")
-                        .HasColumnType("uuid");
-
-                    b.Property<string>("Baslik")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<int>("Durum")
-                        .HasColumnType("integer");
-
-                    b.Property<DateTime?>("GuncellenmeTarihi")
+                    b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamp with time zone");
 
-                    b.Property<Guid>("OlusturanKullaniciId")
+                    b.Property<Guid>("RequestId")
                         .HasColumnType("uuid");
 
-                    b.Property<DateTime>("OlusturulmaTarihi")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<int>("Oncelik")
-                        .HasColumnType("integer");
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uuid");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("AtananKullaniciId");
+                    b.HasIndex("RequestId");
 
-                    b.HasIndex("OlusturanKullaniciId");
+                    b.HasIndex("UserId");
 
-                    b.ToTable("Talepler");
+                    b.ToTable("Comments");
                 });
 
-            modelBuilder.Entity("RequestManagement.Domain.Entities.TalepGecmisi", b =>
+            modelBuilder.Entity("RequestManagement.Domain.Entities.RequestHistory", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
-                    b.Property<string>("Aciklama")
-                        .HasColumnType("text");
-
-                    b.Property<int>("EskiDurum")
-                        .HasColumnType("integer");
-
-                    b.Property<Guid>("KullaniciId")
-                        .HasColumnType("uuid");
-
-                    b.Property<DateTime>("OlusturulmaTarihi")
+                    b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamp with time zone");
 
-                    b.Property<Guid>("TalepId")
+                    b.Property<string>("Description")
+                        .HasColumnType("text");
+
+                    b.Property<int>("NewStatus")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("OldStatus")
+                        .HasColumnType("integer");
+
+                    b.Property<Guid>("RequestId")
                         .HasColumnType("uuid");
 
-                    b.Property<int>("YeniDurum")
-                        .HasColumnType("integer");
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uuid");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("KullaniciId");
+                    b.HasIndex("RequestId");
 
-                    b.HasIndex("TalepId");
+                    b.HasIndex("UserId");
 
-                    b.ToTable("TalepGecmisleri");
+                    b.ToTable("RequestHistories");
                 });
 
-            modelBuilder.Entity("RequestManagement.Domain.Entities.TalepYorum", b =>
+            modelBuilder.Entity("RequestManagement.Domain.Entities.User", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
-                    b.Property<Guid>("KullaniciId")
-                        .HasColumnType("uuid");
+                    b.Property<string>("Email")
+                        .IsRequired()
+                        .HasColumnType("text");
 
-                    b.Property<DateTime>("OlusturulmaTarihi")
-                        .HasColumnType("timestamp with time zone");
+                    b.Property<string>("FullName")
+                        .IsRequired()
+                        .HasColumnType("text");
 
-                    b.Property<Guid>("TalepId")
-                        .HasColumnType("uuid");
+                    b.Property<string>("PasswordHash")
+                        .IsRequired()
+                        .HasColumnType("text");
 
-                    b.Property<string>("Yorum")
+                    b.Property<string>("Role")
                         .IsRequired()
                         .HasColumnType("text");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("KullaniciId");
-
-                    b.HasIndex("TalepId");
-
-                    b.ToTable("TalepYorumlari");
+                    b.ToTable("Users");
                 });
 
-            modelBuilder.Entity("RequestManagement.Domain.Entities.Talep", b =>
+            modelBuilder.Entity("RequestManagement.Domain.Entities.Request", b =>
                 {
-                    b.HasOne("RequestManagement.Domain.Entities.Kullanici", "AtananKullanici")
-                        .WithMany("AtananTalepler")
-                        .HasForeignKey("AtananKullaniciId")
+                    b.HasOne("RequestManagement.Domain.Entities.User", "AssignedToUser")
+                        .WithMany("AssignedRequests")
+                        .HasForeignKey("AssignedToUserId")
                         .OnDelete(DeleteBehavior.Restrict);
 
-                    b.HasOne("RequestManagement.Domain.Entities.Kullanici", "OlusturanKullanici")
-                        .WithMany("OlusturulanTalepler")
-                        .HasForeignKey("OlusturanKullaniciId")
+                    b.HasOne("RequestManagement.Domain.Entities.User", "CreatedByUser")
+                        .WithMany("CreatedRequests")
+                        .HasForeignKey("CreatedByUserId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.Navigation("AtananKullanici");
+                    b.Navigation("AssignedToUser");
 
-                    b.Navigation("OlusturanKullanici");
+                    b.Navigation("CreatedByUser");
                 });
 
-            modelBuilder.Entity("RequestManagement.Domain.Entities.TalepGecmisi", b =>
+            modelBuilder.Entity("RequestManagement.Domain.Entities.RequestComment", b =>
                 {
-                    b.HasOne("RequestManagement.Domain.Entities.Kullanici", "Kullanici")
-                        .WithMany()
-                        .HasForeignKey("KullaniciId")
+                    b.HasOne("RequestManagement.Domain.Entities.Request", "Request")
+                        .WithMany("Comments")
+                        .HasForeignKey("RequestId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("RequestManagement.Domain.Entities.Talep", "Talep")
-                        .WithMany("TalepGecmisleri")
-                        .HasForeignKey("TalepId")
+                    b.HasOne("RequestManagement.Domain.Entities.User", "User")
+                        .WithMany("Comments")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Request");
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("RequestManagement.Domain.Entities.RequestHistory", b =>
+                {
+                    b.HasOne("RequestManagement.Domain.Entities.Request", "Request")
+                        .WithMany("RequestHistories")
+                        .HasForeignKey("RequestId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("Kullanici");
-
-                    b.Navigation("Talep");
-                });
-
-            modelBuilder.Entity("RequestManagement.Domain.Entities.TalepYorum", b =>
-                {
-                    b.HasOne("RequestManagement.Domain.Entities.Kullanici", "Kullanici")
-                        .WithMany()
-                        .HasForeignKey("KullaniciId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                    b.HasOne("RequestManagement.Domain.Entities.User", "User")
+                        .WithMany("RequestHistories")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.HasOne("RequestManagement.Domain.Entities.Talep", "Talep")
-                        .WithMany("Yorumlar")
-                        .HasForeignKey("TalepId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                    b.Navigation("Request");
 
-                    b.Navigation("Kullanici");
-
-                    b.Navigation("Talep");
+                    b.Navigation("User");
                 });
 
-            modelBuilder.Entity("RequestManagement.Domain.Entities.Kullanici", b =>
+            modelBuilder.Entity("RequestManagement.Domain.Entities.Request", b =>
                 {
-                    b.Navigation("AtananTalepler");
+                    b.Navigation("Comments");
 
-                    b.Navigation("OlusturulanTalepler");
+                    b.Navigation("RequestHistories");
                 });
 
-            modelBuilder.Entity("RequestManagement.Domain.Entities.Talep", b =>
+            modelBuilder.Entity("RequestManagement.Domain.Entities.User", b =>
                 {
-                    b.Navigation("TalepGecmisleri");
+                    b.Navigation("AssignedRequests");
 
-                    b.Navigation("Yorumlar");
+                    b.Navigation("Comments");
+
+                    b.Navigation("CreatedRequests");
+
+                    b.Navigation("RequestHistories");
                 });
 #pragma warning restore 612, 618
         }

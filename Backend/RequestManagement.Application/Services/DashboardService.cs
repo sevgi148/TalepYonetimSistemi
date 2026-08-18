@@ -4,16 +4,17 @@ using RequestManagement.Domain.Enums;
 
 namespace RequestManagement.Application.Services;
 
-public class DashboardService(ITalepRepository talepRepository) : IDashboardService
+public class DashboardService(IRequestRepository requestRepository) : IDashboardService
 {
-    public async Task<DashboardOzetDto> OzetGetirAsync(string? kullaniciId = null)
+    public async Task<DashboardSummaryDto> GetSummaryAsync(Guid? userId = null)
     {
-        var toplam = await talepRepository.SayiGetirAsync();
-        var yeni = await talepRepository.SayiGetirAsync(TalepDurumu.Yeni);
-        var islemdeki = await talepRepository.SayiGetirAsync(TalepDurumu.Islemde);
-        var tamamlanan = await talepRepository.SayiGetirAsync(TalepDurumu.Tamamlandi);
-        var iptal = await talepRepository.SayiGetirAsync(TalepDurumu.Iptal);
+        var total = await requestRepository.GetCountAsync();
+        var newCount = await requestRepository.GetCountAsync(RequestStatus.New);
+        var assigned = await requestRepository.GetCountAsync(RequestStatus.Assigned);
+        var inProgress = await requestRepository.GetCountAsync(RequestStatus.InProgress);
+        var resolved = await requestRepository.GetCountAsync(RequestStatus.Resolved);
+        var closed = await requestRepository.GetCountAsync(RequestStatus.Closed);
 
-        return new DashboardOzetDto(toplam, yeni, islemdeki, tamamlanan, iptal);
+        return new DashboardSummaryDto(total, newCount, assigned, inProgress, resolved, closed);
     }
 }

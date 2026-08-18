@@ -4,5 +4,5 @@ namespace RequestManagement.Application.Interfaces;
 
 public interface ITokenService
 {
-    string TokenOlustur(Kullanici kullanici);
+    string GenerateToken(User user);
 }

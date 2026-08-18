@@ -10,7 +10,7 @@ namespace RequestManagement.Infrastructure.Services;
 
 public class TokenService(IConfiguration configuration) : ITokenService
 {
-    public string TokenOlustur(Kullanici kullanici)
+    public string GenerateToken(User user)
     {
         var secretKey = configuration["Jwt:Key"] ?? "TalepYonetimSistemi_GizliGuvenliJwtKey_2026_!";
         var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secretKey));
@@ -18,10 +18,11 @@ public class TokenService(IConfiguration configuration) : ITokenService
 
         var claims = new List<Claim>
         {
-            new(JwtRegisteredClaimNames.Sub, kullanici.Id.ToString()),
-            new(ClaimTypes.NameIdentifier, kullanici.Id.ToString()),
-            new(ClaimTypes.Email, kullanici.Eposta),
-            new(ClaimTypes.Role, kullanici.Rol)
+            new(JwtRegisteredClaimNames.Sub, user.Id.ToString()),
+            new(ClaimTypes.NameIdentifier, user.Id.ToString()),
+            new(ClaimTypes.Name, user.FullName),
+            new(ClaimTypes.Email, user.Email),
+            new(ClaimTypes.Role, user.Role)
         };
 
         var token = new JwtSecurityToken(

@@ -1,9 +1,9 @@
 import { axiosClient } from './axiosClient';
-import type { DashboardOzetDto } from '../types';
+import type { DashboardSummaryDto } from '../types';
 
 export const dashboardApi = {
-  ozetGetir: async (): Promise<DashboardOzetDto> => {
-    const res = await axiosClient.get<DashboardOzetDto>('/Dashboard/ozet');
+  getSummary: async (): Promise<DashboardSummaryDto> => {
+    const res = await axiosClient.get<DashboardSummaryDto>('/dashboard/summary');
     return res.data;
   },
 };

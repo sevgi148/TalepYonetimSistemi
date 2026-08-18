@@ -9,10 +9,10 @@ namespace RequestManagement.API.Controllers;
 [Route("api/[controller]")]
 public class DashboardController(IDashboardService dashboardService) : ControllerBase
 {
-    [HttpGet("ozet")]
-    public async Task<IActionResult> OzetGetir()
+    [HttpGet("summary")]
+    public async Task<IActionResult> GetSummary()
     {
-        var ozet = await dashboardService.OzetGetirAsync();
-        return Ok(ozet);
+        var summary = await dashboardService.GetSummaryAsync();
+        return Ok(summary);
     }
 }

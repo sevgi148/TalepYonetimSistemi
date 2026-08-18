@@ -1,13 +1,14 @@
 import { axiosClient } from './axiosClient';
-import type { KimlikYanitDto, KullaniciGirisDto, KullaniciKayitDto } from '../types';
+import type { IdentityResponseDto, UserLoginDto, UserRegisterDto } from '../types';
 
 export const authApi = {
-  kayitOl: async (dto: KullaniciKayitDto): Promise<KimlikYanitDto> => {
-    const res = await axiosClient.post<KimlikYanitDto>('/Kimlik/kayit', dto);
+  register: async (dto: UserRegisterDto): Promise<IdentityResponseDto> => {
+    const res = await axiosClient.post<IdentityResponseDto>('/auth/register', dto);
     return res.data;
   },
-  girisYap: async (dto: KullaniciGirisDto): Promise<KimlikYanitDto> => {
-    const res = await axiosClient.post<KimlikYanitDto>('/Kimlik/giris', dto);
+
+  login: async (dto: UserLoginDto): Promise<IdentityResponseDto> => {
+    const res = await axiosClient.post<IdentityResponseDto>('/auth/login', dto);
     return res.data;
   },
 };

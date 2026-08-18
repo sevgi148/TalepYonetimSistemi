@@ -2,101 +2,136 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { dashboardApi } from '../api/dashboardApi';
 import { useAuth } from '../hooks/useAuth';
-import type { DashboardOzetDto } from '../types';
+import type { DashboardSummaryDto } from '../types';
 
 export const Dashboard: React.FC = () => {
   const navigate = useNavigate();
   const { user, logout } = useAuth();
-  const kullaniciGosterim = user?.eposta || 'Kullanıcı';
 
-  const [ozet, setOzet] = useState<DashboardOzetDto>({
-    toplam: 0,
-    yeni: 0,
-    islemdeki: 0,
-    tamamlanan: 0,
-    iptal: 0,
+  const userDisplayName = user?.fullName || user?.email || 'Kullanıcı';
+
+  const [summary, setSummary] = useState<DashboardSummaryDto>({
+    totalRequests: 0,
+    newRequests: 0,
+    assignedRequests: 0,
+    inProgressRequests: 0,
+    completedRequests: 0,
+    cancelledRequests: 0,
   });
-  const [yukleniyor, setYukleniyor] = useState(true);
 
-  const ozetGetir = async () => {
+  const [loading, setLoading] = useState<boolean>(true);
+
+  const fetchSummary = async () => {
     try {
-      const data = await dashboardApi.ozetGetir() as unknown as Record<string, number>;
-      
-      setOzet({
-        toplam: data.toplam ?? data.toplamTalepSayisi ?? 0,
-        yeni: data.yeni ?? data.yeniTalepSayisi ?? 0,
-        islemdeki: data.islemdeki ?? data.islemdekiTalepSayisi ?? 0,
-        tamamlanan: data.tamamlanan ?? data.tamamlananTalepSayisi ?? 0,
-        iptal: data.iptal ?? data.iptalTalepSayisi ?? 0,
-      });
+      const data = await dashboardApi.getSummary();
+      if (data) {
+        setSummary(data);
+      }
     } catch (err) {
-      console.error('Özet verisi çekilemedi:', err);
+      console.error('Özet verisi alınamadı:', err);
     } finally {
-      setYukleniyor(false);
+      setLoading(false);
     }
   };
 
   useEffect(() => {
-    ozetGetir();
+    fetchSummary();
   }, []);
 
-  const handleCikis = () => {
+  const handleLogout = () => {
     logout();
     navigate('/login');
   };
 
   return (
     <div style={{ padding: '2rem', backgroundColor: '#0f172a', minHeight: '100vh', color: '#ffffff' }}>
+      
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '3rem' }}>
         <h1 style={{ margin: 0, fontSize: '2rem', fontWeight: 'bold' }}>Talep Yönetim Sistemi</h1>
+        
         <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-          <span style={{ color: '#94a3b8', fontSize: '1rem' }}>👤 {kullaniciGosterim}</span>
+          <span style={{ color: '#38bdf8', fontSize: '1rem', fontWeight: '600' }}>
+            {userDisplayName}
+          </span>
           <button
-            onClick={() => navigate('/talepler')}
-            style={{ backgroundColor: '#2563eb', color: '#fff', border: 'none', padding: '0.6rem 1.2rem', borderRadius: '8px', cursor: 'pointer', fontWeight: 'bold' }}
+            onClick={() => navigate('/requests')}
+            style={{
+              backgroundColor: '#2563eb',
+              color: '#fff',
+              border: 'none',
+              padding: '0.6rem 1.2rem',
+              borderRadius: '8px',
+              cursor: 'pointer',
+              fontWeight: 'bold'
+            }}
           >
-            📋 Taleplerime Git
+            Taleplerim
           </button>
           <button
-            onClick={handleCikis}
-            style={{ backgroundColor: '#ef4444', color: '#fff', border: 'none', padding: '0.6rem 1.2rem', borderRadius: '8px', cursor: 'pointer', fontWeight: 'bold' }}
+            onClick={handleLogout}
+            style={{
+              backgroundColor: '#ef4444',
+              color: '#fff',
+              border: 'none',
+              padding: '0.6rem 1.2rem',
+              borderRadius: '8px',
+              cursor: 'pointer',
+              fontWeight: 'bold'
+            }}
           >
             Çıkış Yap
           </button>
         </div>
       </div>
 
-      {yukleniyor ? (
-        <p>İstatistikler yükleniyor...</p>
+      {loading ? (
+        <p style={{ color: '#94a3b8' }}>İstatistikler yükleniyor.</p>
       ) : (
-        <>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '1.5rem', marginBottom: '1.5rem' }}>
-            <div style={{ backgroundColor: '#ffffff', color: '#1e293b', padding: '1.5rem', borderRadius: '12px', borderLeft: '6px solid #2563eb', textAlign: 'center' }}>
-              <h3 style={{ margin: 0, color: '#64748b', fontSize: '1.1rem' }}>Toplam Talep</h3>
-              <p style={{ fontSize: '2.5rem', fontWeight: 'bold', margin: '0.5rem 0 0', color: '#2563eb' }}>{ozet.toplam}</p>
-            </div>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1.5rem' }}>
+          
+          <div style={{ backgroundColor: '#ffffff', color: '#1e293b', padding: '1.5rem', borderRadius: '12px', borderLeft: '6px solid #2563eb', textAlign: 'center' }}>
+            <h3 style={{ margin: 0, color: '#64748b', fontSize: '1.1rem' }}>Toplam Talep</h3>
+            <p style={{ fontSize: '2.5rem', fontWeight: 'bold', margin: '0.5rem 0 0', color: '#2563eb' }}>
+              {summary.totalRequests ?? 0}
+            </p>
+          </div>
 
-            <div style={{ backgroundColor: '#ffffff', color: '#1e293b', padding: '1.5rem', borderRadius: '12px', borderLeft: '6px solid #d97706', textAlign: 'center' }}>
-              <h3 style={{ margin: 0, color: '#64748b', fontSize: '1.1rem' }}>Yeni Talepler</h3>
-              <p style={{ fontSize: '2.5rem', fontWeight: 'bold', margin: '0.5rem 0 0', color: '#d97706' }}>{ozet.yeni}</p>
-            </div>
+          <div style={{ backgroundColor: '#ffffff', color: '#1e293b', padding: '1.5rem', borderRadius: '12px', borderLeft: '6px solid #d97706', textAlign: 'center' }}>
+            <h3 style={{ margin: 0, color: '#64748b', fontSize: '1.1rem' }}>Yeni Talepler</h3>
+            <p style={{ fontSize: '2.5rem', fontWeight: 'bold', margin: '0.5rem 0 0', color: '#d97706' }}>
+              {summary.newRequests ?? 0}
+            </p>
+          </div>
 
-            <div style={{ backgroundColor: '#ffffff', color: '#1e293b', padding: '1.5rem', borderRadius: '12px', borderLeft: '6px solid #0284c7', textAlign: 'center' }}>
-              <h3 style={{ margin: 0, color: '#64748b', fontSize: '1.1rem' }}>İşlemdeki Talepler</h3>
-              <p style={{ fontSize: '2.5rem', fontWeight: 'bold', margin: '0.5rem 0 0', color: '#0284c7' }}>{ozet.islemdeki}</p>
-            </div>
+          <div style={{ backgroundColor: '#ffffff', color: '#1e293b', padding: '1.5rem', borderRadius: '12px', borderLeft: '6px solid #8b5cf6', textAlign: 'center' }}>
+            <h3 style={{ margin: 0, color: '#64748b', fontSize: '1.1rem' }}>Atanan Talepler</h3>
+            <p style={{ fontSize: '2.5rem', fontWeight: 'bold', margin: '0.5rem 0 0', color: '#8b5cf6' }}>
+              {summary.assignedRequests ?? 0}
+            </p>
+          </div>
 
-            <div style={{ backgroundColor: '#ffffff', color: '#1e293b', padding: '1.5rem', borderRadius: '12px', borderLeft: '6px solid #16a34a', textAlign: 'center' }}>
-              <h3 style={{ margin: 0, color: '#64748b', fontSize: '1.1rem' }}>Tamamlananlar</h3>
-              <p style={{ fontSize: '2.5rem', fontWeight: 'bold', margin: '0.5rem 0 0', color: '#16a34a' }}>{ozet.tamamlanan}</p>
-            </div>
+          <div style={{ backgroundColor: '#ffffff', color: '#1e293b', padding: '1.5rem', borderRadius: '12px', borderLeft: '6px solid #0284c7', textAlign: 'center' }}>
+            <h3 style={{ margin: 0, color: '#64748b', fontSize: '1.1rem' }}>İşlemdeki Talepler</h3>
+            <p style={{ fontSize: '2.5rem', fontWeight: 'bold', margin: '0.5rem 0 0', color: '#0284c7' }}>
+              {summary.inProgressRequests ?? 0}
+            </p>
+          </div>
+
+          <div style={{ backgroundColor: '#ffffff', color: '#1e293b', padding: '1.5rem', borderRadius: '12px', borderLeft: '6px solid #16a34a', textAlign: 'center' }}>
+            <h3 style={{ margin: 0, color: '#64748b', fontSize: '1.1rem' }}>Tamamlanan Talepler</h3>
+            <p style={{ fontSize: '2.5rem', fontWeight: 'bold', margin: '0.5rem 0 0', color: '#16a34a' }}>
+              {summary.completedRequests ?? 0}
+            </p>
           </div>
 
           <div style={{ backgroundColor: '#ffffff', color: '#1e293b', padding: '1.5rem', borderRadius: '12px', borderLeft: '6px solid #dc2626', textAlign: 'center' }}>
-            <h3 style={{ margin: 0, color: '#64748b', fontSize: '1.1rem' }}>İptal Edilenler</h3>
-            <p style={{ fontSize: '2.5rem', fontWeight: 'bold', margin: '0.5rem 0 0', color: '#dc2626' }}>{ozet.iptal}</p>
+            <h3 style={{ margin: 0, color: '#64748b', fontSize: '1.1rem' }}>İptal Edilen İşlemler</h3>
+            <p style={{ fontSize: '2.5rem', fontWeight: 'bold', margin: '0.5rem 0 0', color: '#dc2626' }}>
+              {summary.cancelledRequests ?? 0}
+            </p>
           </div>
-        </>
+
+        </div>
       )}
     </div>
   );

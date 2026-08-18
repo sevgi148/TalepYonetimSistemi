@@ -5,10 +5,10 @@ namespace RequestManagement.Application.Interfaces;
 
 public interface IAppDbContext
 {
-    DbSet<Talep> Talepler { get; }
-    DbSet<Kullanici> Kullanicilar { get; }
-    DbSet<TalepGecmisi> TalepGecmisleri { get; }
-    DbSet<TalepYorum> Yorumlar { get; }
+    DbSet<Request> Requests { get; }
+    DbSet<User> Users { get; }
+    DbSet<RequestHistory> RequestHistories { get; }
+    DbSet<RequestComment> Comments { get; }
 
     Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);
 }
