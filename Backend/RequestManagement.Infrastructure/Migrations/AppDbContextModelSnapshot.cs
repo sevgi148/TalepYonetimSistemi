@@ -22,6 +22,72 @@ namespace RequestManagement.Infrastructure.Migrations
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
+            modelBuilder.Entity("RequestManagement.Domain.Entities.Department", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Description")
+                        .HasColumnType("text");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Departments");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = new Guid("11111111-1111-1111-1111-111111111111"),
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            Description = "Yazılım ve sistem geliştirme talepleri",
+                            IsActive = true,
+                            Name = "Yazılım Destek Ekibi"
+                        },
+                        new
+                        {
+                            Id = new Guid("22222222-2222-2222-2222-222222222222"),
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            Description = "Bilgisayar, sunucu ve çevre birimleri",
+                            IsActive = true,
+                            Name = "Donanım & Sistem Yönetimi"
+                        },
+                        new
+                        {
+                            Id = new Guid("33333333-3333-3333-3333-333333333333"),
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            Description = "İnternet, VPN ve siber güvenlik",
+                            IsActive = true,
+                            Name = "Ağ ve Güvenlik Birimi"
+                        },
+                        new
+                        {
+                            Id = new Guid("44444444-4444-4444-4444-444444444444"),
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            Description = "Personel ve özlük işleri talepleri",
+                            IsActive = true,
+                            Name = "İnsan Kaynakları"
+                        },
+                        new
+                        {
+                            Id = new Guid("55555555-5555-5555-5555-555555555555"),
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            Description = "Genel ofis ve malzeme talepleri",
+                            IsActive = true,
+                            Name = "İdari İşler"
+                        });
+                });
+
             modelBuilder.Entity("RequestManagement.Domain.Entities.Request", b =>
                 {
                     b.Property<Guid>("Id")
@@ -35,6 +101,9 @@ namespace RequestManagement.Infrastructure.Migrations
                         .HasColumnType("timestamp with time zone");
 
                     b.Property<Guid>("CreatedByUserId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid?>("DepartmentId")
                         .HasColumnType("uuid");
 
                     b.Property<string>("Description")
@@ -51,6 +120,9 @@ namespace RequestManagement.Infrastructure.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
+                    b.Property<int>("Type")
+                        .HasColumnType("integer");
+
                     b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("timestamp with time zone");
 
@@ -59,6 +131,8 @@ namespace RequestManagement.Infrastructure.Migrations
                     b.HasIndex("AssignedToUserId");
 
                     b.HasIndex("CreatedByUserId");
+
+                    b.HasIndex("DepartmentId");
 
                     b.ToTable("Requests");
                 });
@@ -164,9 +238,16 @@ namespace RequestManagement.Infrastructure.Migrations
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
+                    b.HasOne("RequestManagement.Domain.Entities.Department", "Department")
+                        .WithMany("Requests")
+                        .HasForeignKey("DepartmentId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
                     b.Navigation("AssignedToUser");
 
                     b.Navigation("CreatedByUser");
+
+                    b.Navigation("Department");
                 });
 
             modelBuilder.Entity("RequestManagement.Domain.Entities.RequestComment", b =>
@@ -205,6 +286,11 @@ namespace RequestManagement.Infrastructure.Migrations
                     b.Navigation("Request");
 
                     b.Navigation("User");
+                });
+
+            modelBuilder.Entity("RequestManagement.Domain.Entities.Department", b =>
+                {
+                    b.Navigation("Requests");
                 });
 
             modelBuilder.Entity("RequestManagement.Domain.Entities.Request", b =>

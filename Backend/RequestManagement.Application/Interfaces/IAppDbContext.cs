@@ -7,6 +7,7 @@ public interface IAppDbContext
 {
     DbSet<Request> Requests { get; }
     DbSet<User> Users { get; }
+    DbSet<Department> Departments { get; }
     DbSet<RequestHistory> RequestHistories { get; }
     DbSet<RequestComment> Comments { get; }
 

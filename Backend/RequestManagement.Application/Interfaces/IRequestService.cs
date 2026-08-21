@@ -11,4 +11,5 @@ public interface IRequestService
     Task<Request> CreateRequestAsync(CreateRequestDto dto);
     Task<bool> UpdateRequestStatusAsync(UpdateRequestStatusDto dto);
     Task<bool> AddCommentAsync(AddCommentDto dto);
+    Task<DashboardSummaryDto> GetSummaryAsync(Guid? userId = null);
 }

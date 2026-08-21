@@ -13,4 +13,6 @@ public interface IRequestRepository
     Task AddHistoryAsync(RequestHistory history);
     Task AddCommentAsync(RequestComment comment);
     Task<int> GetCountAsync(RequestStatus? status = null);
+    Task<int> GetAssignedToUserCountAsync(Guid userId);
+    Task<Dictionary<string, int>> GetCountByTypeAsync();
 }

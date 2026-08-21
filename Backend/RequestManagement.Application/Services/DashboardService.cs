@@ -15,6 +15,24 @@ public class DashboardService(IRequestRepository requestRepository) : IDashboard
         var resolved = await requestRepository.GetCountAsync(RequestStatus.Resolved);
         var closed = await requestRepository.GetCountAsync(RequestStatus.Closed);
 
-        return new DashboardSummaryDto(total, newCount, assigned, inProgress, resolved, closed);
+        var openRequests = newCount + assigned + inProgress;
+
+        var assignedToUser = userId.HasValue && userId.Value != Guid.Empty
+            ? await requestRepository.GetAssignedToUserCountAsync(userId.Value)
+            : 0;
+
+        var requestsByType = await requestRepository.GetCountByTypeAsync();
+
+        return new DashboardSummaryDto(
+            TotalRequests: total,
+            NewRequests: newCount,
+            AssignedRequests: assigned,
+            InProgressRequests: inProgress,
+            CompletedRequests: resolved,
+            CancelledRequests: closed,
+            OpenRequests: openRequests,
+            AssignedToUserRequests: assignedToUser,
+            RequestsByType: requestsByType
+        );
     }
 }

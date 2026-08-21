@@ -6,5 +6,8 @@ public record DashboardSummaryDto(
     int AssignedRequests,
     int InProgressRequests,
     int CompletedRequests,
-    int CancelledRequests
+    int CancelledRequests,
+    int OpenRequests,
+    int AssignedToUserRequests,
+    Dictionary<string, int> RequestsByType
 );

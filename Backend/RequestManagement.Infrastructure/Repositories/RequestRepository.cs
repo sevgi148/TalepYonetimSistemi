@@ -75,4 +75,19 @@ public class RequestRepository(AppDbContext context) : IRequestRepository
         }
         return await context.Requests.CountAsync();
     }
+
+    public async Task<int> GetAssignedToUserCountAsync(Guid userId)
+    {
+        return await context.Requests.CountAsync(r => r.AssignedToUserId == userId);
+    }
+
+    public async Task<Dictionary<string, int>> GetCountByTypeAsync()
+    {
+        var typeGroups = await context.Requests
+            .GroupBy(r => r.Type)
+            .Select(g => new { Type = g.Key, Count = g.Count() })
+            .ToListAsync();
+
+        return typeGroups.ToDictionary(g => g.Type.ToString(), g => g.Count);
+    }
 }

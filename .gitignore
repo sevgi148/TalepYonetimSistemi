@@ -1,0 +1,14 @@
+node_modules/
+Frontend/node_modules/
+dist/
+Frontend/dist/
+.vite/
+Frontend/.vite/
+bin/
+obj/
+**/bin/
+**/obj/
+*.user
+*.suo
+.vs/
+*.log

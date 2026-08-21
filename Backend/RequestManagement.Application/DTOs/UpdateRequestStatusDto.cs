@@ -4,7 +4,8 @@ namespace RequestManagement.Application.DTOs;
 
 public record UpdateRequestStatusDto(
     Guid RequestId,
-    RequestStatus NewStatus,
+    RequestStatus? NewStatus = null,
     Guid? AssignedToUserId = null,
+    Guid? DepartmentId = null,
     string? Description = null
 );

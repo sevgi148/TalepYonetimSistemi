@@ -13,6 +13,7 @@ public class RequestService(IAppDbContext context) : IRequestService
         return await context.Requests
             .Include(r => r.CreatedByUser)
             .Include(r => r.AssignedToUser)
+            .Include(r => r.Department)
             .Where(r => r.CreatedByUserId == userId)
             .OrderByDescending(r => r.CreatedAt)
             .AsNoTracking()
@@ -24,6 +25,7 @@ public class RequestService(IAppDbContext context) : IRequestService
         return await context.Requests
             .Include(r => r.CreatedByUser)
             .Include(r => r.AssignedToUser)
+            .Include(r => r.Department)
             .OrderByDescending(r => r.CreatedAt)
             .AsNoTracking()
             .ToListAsync();
@@ -34,6 +36,7 @@ public class RequestService(IAppDbContext context) : IRequestService
         return await context.Requests
             .Include(r => r.CreatedByUser)
             .Include(r => r.AssignedToUser)
+            .Include(r => r.Department)
             .Include(r => r.Comments)
                 .ThenInclude(c => c.User)
             .Include(r => r.RequestHistories)
@@ -48,6 +51,7 @@ public class RequestService(IAppDbContext context) : IRequestService
         {
             Title = dto.Title,
             Description = dto.Description,
+            Type = dto.Type,
             Priority = dto.Priority,
             Status = RequestStatus.New,
             CreatedByUserId = dto.CreatedByUserId
@@ -59,7 +63,7 @@ public class RequestService(IAppDbContext context) : IRequestService
             UserId = dto.CreatedByUserId,
             OldStatus = RequestStatus.New,
             NewStatus = RequestStatus.New,
-            Description = "Request created."
+            Description = "Talep oluşturuldu."
         });
 
         context.Requests.Add(request);
@@ -75,24 +79,32 @@ public class RequestService(IAppDbContext context) : IRequestService
         if (request == null) return false;
 
         var oldStatus = request.Status;
-        request.Status = dto.NewStatus;
-        request.UpdatedAt = DateTime.UtcNow;
 
-        if (dto.AssignedToUserId.HasValue && dto.AssignedToUserId.Value != Guid.Empty)
+        if (dto.DepartmentId.HasValue)
         {
-            request.AssignedToUserId = dto.AssignedToUserId.Value;
+            request.DepartmentId = dto.DepartmentId.Value != Guid.Empty ? dto.DepartmentId.Value : null;
         }
+
+        if (dto.AssignedToUserId.HasValue)
+        {
+            request.AssignedToUserId = dto.AssignedToUserId.Value != Guid.Empty ? dto.AssignedToUserId.Value : null;
+        }
+
+        if (dto.NewStatus.HasValue)
+        {
+            request.Status = dto.NewStatus.Value;
+        }
+
+        request.UpdatedAt = DateTime.UtcNow;
 
         context.RequestHistories.Add(new RequestHistory
         {
             RequestId = request.Id,
-            UserId = (dto.AssignedToUserId.HasValue && dto.AssignedToUserId.Value != Guid.Empty)
-                ? dto.AssignedToUserId.Value 
-                : request.CreatedByUserId,
+            UserId = request.CreatedByUserId,
             OldStatus = oldStatus,
-            NewStatus = dto.NewStatus,
+            NewStatus = request.Status,
             Description = string.IsNullOrWhiteSpace(dto.Description) 
-                ? $"Status changed from {oldStatus} to {dto.NewStatus}." 
+                ? $"Durum {request.Status} olarak güncellendi." 
                 : dto.Description
         });
 
@@ -119,5 +131,39 @@ public class RequestService(IAppDbContext context) : IRequestService
         context.Comments.Add(comment);
         await context.SaveChangesAsync();
         return true;
+    }
+
+    public async Task<DashboardSummaryDto> GetSummaryAsync(Guid? userId = null)
+    {
+        var allRequests = await context.Requests.AsNoTracking().ToListAsync();
+
+        var total = allRequests.Count;
+        var newReqs = allRequests.Count(r => r.Status == RequestStatus.New);
+        var assigned = allRequests.Count(r => r.Status == RequestStatus.Assigned);
+        var inProgress = allRequests.Count(r => r.Status == RequestStatus.InProgress);
+        var completed = allRequests.Count(r => r.Status == RequestStatus.Resolved);
+        var cancelled = allRequests.Count(r => r.Status == RequestStatus.Closed);
+
+        var openRequests = newReqs + assigned + inProgress;
+
+        var assignedToUser = userId.HasValue && userId.Value != Guid.Empty
+            ? allRequests.Count(r => r.AssignedToUserId == userId.Value)
+            : 0;
+
+        var requestsByType = allRequests
+            .GroupBy(r => r.Type.ToString())
+            .ToDictionary(g => g.Key, g => g.Count());
+
+        return new DashboardSummaryDto(
+            TotalRequests: total,
+            NewRequests: newReqs,
+            AssignedRequests: assigned,
+            InProgressRequests: inProgress,
+            CompletedRequests: completed,
+            CancelledRequests: cancelled,
+            OpenRequests: openRequests,
+            AssignedToUserRequests: assignedToUser,
+            RequestsByType: requestsByType
+        );
     }
 }

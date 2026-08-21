@@ -8,15 +8,6 @@ export const RequestStatus = {
 
 export type RequestStatus = typeof RequestStatus[keyof typeof RequestStatus];
 
-export const RequestType = {
-  Hardware: 1,
-  Software: 2,
-  Access: 3,
-  Other: 4,
-} as const;
-
-export type RequestType = typeof RequestType[keyof typeof RequestType];
-
 export const RequestPriority = {
   Low: 1,
   Medium: 2,
@@ -26,7 +17,32 @@ export const RequestPriority = {
 
 export type RequestPriority = typeof RequestPriority[keyof typeof RequestPriority];
 
+export const RequestType = {
+  Software: 1,
+  Hardware: 2,
+  Network: 3,
+  Access: 4,
+  Administrative: 5,
+  HR: 6,
+  Other: 7,
+} as const;
+
+export type RequestType = typeof RequestType[keyof typeof RequestType];
+
+export interface DepartmentDto {
+  id: string;
+  name: string;
+  description?: string;
+}
+
 export interface UserSummary {
+  id: string;
+  fullName: string;
+  email: string;
+  role?: string;
+}
+
+export interface UserDto {
   id: string;
   fullName: string;
   email: string;
@@ -73,19 +89,22 @@ export interface RequestHistory {
   user?: UserSummary;
   userName?: string;
 }
+
 export interface RequestItem {
   id: string;
   title: string;
   description: string;
-  requestType?: RequestType | string;
+  type?: RequestType | string | number;
   priority: RequestPriority;
   status: RequestStatus;
   createdByUserId: string;
-  createdByUser?: UserSummary;
   createdByFullName?: string;
+  createdByUser?: UserSummary;
   assignedToUserId?: string;
-  assignedToUser?: UserSummary;
   assignedToFullName?: string;
+  assignedToUser?: UserSummary;
+  departmentId?: string;
+  department?: DepartmentDto;
   createdAt: string;
   updatedAt?: string;
   comments?: RequestComment[];
@@ -95,15 +114,16 @@ export interface RequestItem {
 export interface CreateRequestDto {
   title: string;
   description: string;
-  requestType: string;
+  type: RequestType;
   priority: RequestPriority;
   createdByUserId?: string;
 }
 
 export interface UpdateRequestStatusDto {
   requestId: string;
-  newStatus: RequestStatus;
+  newStatus?: RequestStatus;
   assignedToUserId?: string;
+  departmentId?: string;
   description?: string;
 }
 
@@ -112,6 +132,7 @@ export interface AddCommentDto {
   content: string;
   userId?: string;
 }
+
 export interface DashboardSummaryDto {
   totalRequests: number;
   newRequests: number;
@@ -119,4 +140,7 @@ export interface DashboardSummaryDto {
   inProgressRequests: number;
   completedRequests: number;
   cancelledRequests: number;
+  openRequests: number;
+  assignedToUserRequests: number;
+  requestsByType: Record<string, number>;
 }

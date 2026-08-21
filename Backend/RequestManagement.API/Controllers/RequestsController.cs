@@ -59,14 +59,12 @@ public class RequestsController(IRequestService requestService) : ControllerBase
     [HttpPut("status")]
     public async Task<IActionResult> UpdateStatus([FromBody] UpdateRequestStatusDto dto)
     {
-        if (!TryGetUserId(out var userId))
+        if (!TryGetUserId(out _))
         {
             return Unauthorized(new { message = "Kullanıcı kimliği doğrulanamadı." });
         }
 
-        var updatedDto = dto with { AssignedToUserId = dto.AssignedToUserId ?? userId };
-
-        var success = await requestService.UpdateRequestStatusAsync(updatedDto);
+        var success = await requestService.UpdateRequestStatusAsync(dto);
         if (!success)
         {
             return NotFound(new { message = "Güncellenecek talep bulunamadı." });

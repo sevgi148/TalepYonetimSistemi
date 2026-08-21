@@ -3,7 +3,9 @@ import type {
   RequestItem, 
   CreateRequestDto, 
   UpdateRequestStatusDto, 
-  AddCommentDto 
+  AddCommentDto,
+  DepartmentDto,
+  UserDto
 } from '../types';
 
 export const requestApi = {
@@ -33,5 +35,15 @@ export const requestApi = {
 
   addComment: async (dto: AddCommentDto): Promise<void> => {
     await axiosClient.post('/requests/comment', dto);
+  },
+
+  getDepartments: async (): Promise<DepartmentDto[]> => {
+    const res = await axiosClient.get<DepartmentDto[]>('/departments');
+    return res.data;
+  },
+
+  getUsers: async (): Promise<UserDto[]> => {
+    const res = await axiosClient.get<UserDto[]>('/users');
+    return res.data;
   },
 };

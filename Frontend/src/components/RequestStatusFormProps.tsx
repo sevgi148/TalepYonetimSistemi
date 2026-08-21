@@ -21,7 +21,7 @@ export const RequestStatusForm: React.FC<RequestStatusFormProps> = ({
   const handleStatusChange = async (newStatus: RequestStatus) => {
     setIsSubmitting(true);
     try {
-      await onUpdateStatus(requestId, newStatus, description);
+      await onUpdateStatus(requestId, newStatus, description.trim() || undefined);
       setSelectedStatus(null);
       setDescription('');
     } catch (err: unknown) {
@@ -35,27 +35,9 @@ export const RequestStatusForm: React.FC<RequestStatusFormProps> = ({
 
   return (
     <div style={{ backgroundColor: '#0f172a', padding: '1rem', borderRadius: '8px', border: '1px solid #334155' }}>
-      <h3 style={{ margin: '0 0 0.75rem 0', fontSize: '0.875rem', color: '#cbd5e1' }}>Talep Durumunu Değiştir</h3>
+      <h3 style={{ margin: '0 0 0.75rem 0', fontSize: '0.875rem', color: '#cbd5e1' }}>Talep Süreç Durumunu Güncelle</h3>
       <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
         
-        <button
-          type="button"
-          disabled={isSubmitting || currentStatus === RequestStatus.Assigned}
-          onClick={() => setSelectedStatus(RequestStatus.Assigned)}
-          style={{
-            backgroundColor: '#8b5cf6',
-            color: '#fff',
-            border: 'none',
-            padding: '0.4rem 0.8rem',
-            borderRadius: '6px',
-            fontSize: '0.85rem',
-            cursor: 'pointer',
-            opacity: currentStatus === RequestStatus.Assigned ? 0.5 : 1
-          }}
-        >
-          Atama Yap
-        </button>
-
         <button
           type="button"
           disabled={isSubmitting || currentStatus === RequestStatus.InProgress}
@@ -107,18 +89,19 @@ export const RequestStatusForm: React.FC<RequestStatusFormProps> = ({
             opacity: currentStatus === RequestStatus.Closed ? 0.5 : 1
           }}
         >
-          İptal Et
+          İptal Et / Kapat
         </button>
       </div>
 
       {selectedStatus && (
-        <div style={{ marginTop: '0.75rem', paddingTop: '0.75rem', borderTop: '1px solid #1e293b', display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+        <div style={{ marginTop: '0.75rem', paddingTop: '0.75rem', borderTop: '1px solid #1e293b', display: 'flex', flexDirection: 'column', gap: '0.6rem' }}>
           <p style={{ margin: 0, fontSize: '0.8rem', color: '#cbd5e1' }}>
             Yeni Durum: <strong style={{ color: '#38bdf8' }}>{getStatusText(selectedStatus)}</strong>
           </p>
+
           <input
             type="text"
-            placeholder="Durum güncelleme notu (opsiyonel)..."
+            placeholder="Durum güncelleme açıklaması (opsiyonel)..."
             value={description}
             onChange={(e) => setDescription(e.target.value)}
             style={{
@@ -132,10 +115,14 @@ export const RequestStatusForm: React.FC<RequestStatusFormProps> = ({
               boxSizing: 'border-box'
             }}
           />
+
           <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '0.5rem', marginTop: '0.25rem' }}>
             <button
               type="button"
-              onClick={() => setSelectedStatus(null)}
+              onClick={() => {
+                setSelectedStatus(null);
+                setDescription('');
+              }}
               style={{ backgroundColor: 'transparent', color: '#94a3b8', border: 'none', padding: '0.3rem 0.6rem', fontSize: '0.8rem', cursor: 'pointer' }}
             >
               Vazgeç
@@ -144,9 +131,9 @@ export const RequestStatusForm: React.FC<RequestStatusFormProps> = ({
               type="button"
               onClick={() => handleStatusChange(selectedStatus)}
               disabled={isSubmitting}
-              style={{ backgroundColor: '#2563eb', color: '#fff', border: 'none', padding: '0.3rem 0.8rem', borderRadius: '4px', fontSize: '0.8rem', cursor: 'pointer' }}
+              style={{ backgroundColor: '#08328d', color: '#fff', border: 'none', padding: '0.35rem 0.9rem', borderRadius: '4px', fontSize: '0.8rem', cursor: 'pointer', fontWeight: 'bold' }}
             >
-              {isSubmitting ? 'Kaydediliyor.' : 'Onayla'}
+              {isSubmitting ? 'Kaydediliyor...' : 'Onayla'}
             </button>
           </div>
         </div>
